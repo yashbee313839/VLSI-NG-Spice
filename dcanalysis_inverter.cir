@@ -1,0 +1,27 @@
+*inverter 
+
+.include ./t14y_tsmc_025_level3.txt
+
+*netlist
+m1 vout vin 0 0 cmosn l=0.5u w=1.5u
+rl vdd vout 33k
+cl vout 0 1u
+
+*power sources
+
+v_dd vdd 0 3.3
+v_in vin 0 3.3
+
+
+.control
+dc v_in 0 4 0.1
+setplot dc1
+plot vout
+let slope = deriv(vout)
+
+meas dc vol find v(vout) when v(vin)=3.3
+meas dc vil find v(vin) when slope=-1 cross=1
+meas dc vih find v(vin) when slope =-1 cross =2
+meas dc vm find vout when vout=vin
+
+.endc

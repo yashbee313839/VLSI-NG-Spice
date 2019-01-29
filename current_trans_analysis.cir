@@ -1,0 +1,25 @@
+*inverter 
+
+.include ./t14y_tsmc_025_level3.txt
+
+*netlist
+m1 vout vin 0 0 cmosn l=0.5u w=2.5u
+rl vdd vout 15k
+cl vout vt 0.5u
+
+v_in vin 0 PULSE(0 3.3 0 0.1p 0.1p 0.5m 1m)
+*power sources
+
+v_dd vdd 0 3.3
+v_t vt 0 0
+*analysis
+ 
+.control
+
+tran 10n 2m
+setplot tran1
+plot v_dd#branch v_t#branch
+
+
+.endc 
+ 

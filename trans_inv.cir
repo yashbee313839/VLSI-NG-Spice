@@ -1,0 +1,53 @@
+*inverter 
+
+.include ./t14y_tsmc_025_level3.txt
+
+*netlist
+.param p=0.1p
+m1 vout vin 0 0 cmosn l=0.5u w=2.5u
+rl vdd vout 15k
+cl vout 0 0.0005u
+
+v_in vin 0 PULSE(0 3.3 0 p p 0.25m 0.5m)
+*power sources
+
+v_dd vdd 0 3.3
+
+*analysis
+
+.control
+
+dc v_in 0 3.3 0.1
+setplot dc1
+plot vout
+let slope = deriv(vout)
+
+meas dc vol find v(vout) when v(vin)=3.3
+meas dc vil find v(vin) when slope=-1 cross=1
+meas dc vih find v(vin) when slope =-1 cross =2
+meas dc vm find vout when vout=vin
+ 
+
+let voh=3.3
+let v90=voh-0.1*(voh-vol)
+let v10=vol+0.1*(voh-vol)
+let vinhalf=1.65
+let vhalf=voh-0.5*(voh-vol)
+tran 10n 2m
+
+setplot tran1
+
+plot vin vout
+
+*meas dc vol find v(vout) when v(vin)=3.3
+meas tran trise trig v(vout) val=dc1.v10 rise=2 targ v(vout) val=dc1.v90 rise=2
+meas tran tfall trig v(vout) val=dc1.v90 fall=2 targ v(vout) val=dc1.v10 fall=2
+meas tran tphl trig v(vin) val=dc1.vinhalf rise=1 targ v(vout) val=dc1.vhalf fall=1
+meas tran tplh trig v(vin) val=dc1.vinhalf fall=1 targ v(vout) val=dc1.vhalf rise=1
+
+let td=0.5*(tphl+tplh)
+print td
+let power = -3.3*v_dd#branch
+
+meas tran pavg AVG power from=0n to=2m
+.endc 

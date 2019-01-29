@@ -1,0 +1,33 @@
+*inverter 
+
+.include ./t14y_tsmc_025_level3.txt
+
+*netlist
+m1 vout vin 0 0 cmosn l=0.5u w=2.5u
+rl vdd vout 15k
+cl vout 0 0.0005u
+
+v_in vin 0 PULSE(0 3.3 0 0.1p 0.1p 0.25m 0.5m)
+*power sources
+
+v_dd vdd 0 3.3
+
+*analysis
+.tran 10n 2m
+.control
+
+foreach cx 0.0001u 0.0005u 0.001u 0.01u 
+alter cl=$cx
+run 
+end 
+
+foreach iter 1 2 3 4
+setplot tran$iter
+
+end
+
+plot vin tran1.vout tran2.vout tran3.vout tran4.vout
+
+
+.endc 
+ 
